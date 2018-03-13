@@ -22,7 +22,7 @@ class todayTopic extends WP_Widget{
 	public function widget($args, $instance){
 // $args : 위젯의 타이틀/위젯과 관련된 필터 훅과 연계된 데이터가 $args 매개변수에 저장됩니다.
 // $instance : $instance 에서는 Update() 메서드를 통해 저장된 데이터를 가지고 있는 변수입니다. 
-
+		wp_enqueue_style( 'style', plugins_url('heo.css', __FILE__) );
 		?>
 		<aside id='my' style='margin-bottom:2em'>
 			<section>
@@ -30,19 +30,46 @@ class todayTopic extends WP_Widget{
 					<span>Today Topic</span>
 				</h3>
 				<div>
-					<p><?php echo $instance['text'];?></p>
-					<div onclick="pick();">Click Me!</div>
-					<p id="result"></p>
+					<h3><?php echo $instance['title'];?></h3>
+
+					<?php if($instance['radio'] == 'textType') : ?>
+						<div id="pick" onclick="pick()">
+							<p>Today Topic! Click Me!</p>
+						</div>
+						<div id="pick2" style="display: none;">
+							<p id="result"></p>
+						</div>
+					<?php elseif($instance['radio'] == 'imgType') : ?>
+						<div class="container">
+							<div class='img'></div>
+							<div class="foo" style="display: none;">Click Me!</div>
+						</div>
+					<?php endif; ?>
+
+
 					<script type="text/javascript">
+						var myArray = ['삶', '봄', '여행', '사진', '곰', '휴식'];
+						
 						function pick(){
-							var myArray = ["시금치", "콩나물", "아욱", "냉이"];
-							var randomItem = myArray[Math.floor(Math.random()*myArray.length)];
+							
+							var selected = myArray[Math.floor(Math.random()*myArray.length)];
 
-							document.getElementById("result").innerHTML = randomItem;
+							//document.getElementById('pick2').style.display = 'none';
+							document.getElementById('pick').style.display = 'none';
+							//document.getElementById('pick').classList.remove('pick2');
+							document.getElementById('pick2').style.display = 'block';
+							document.getElementById("result").innerHTML = selected;
 
-							//$topics = array("시금치", "콩나물", "아욱", "냉이"); 
-							//$selected = array_rand($topics);
-							//echo $topics[$selected];
+						}
+
+						document.getElementsByClassName("container")[0].addEventListener("click", ok);
+						function ok() {
+							var selected = myArray[Math.floor(Math.random()*myArray.length)];
+
+							document.getElementsByClassName("foo")[0].style.display = 'block';
+							document.getElementsByClassName("foo")[0].innerHTML = selected;
+
+							document.getElementsByClassName("container")[0].removeEventListener("click", ok);
 						}
 					</script>
 				</div>
@@ -58,17 +85,26 @@ class todayTopic extends WP_Widget{
 // $old_instance : 현재 저장된 설정 이전에 저장된 데이터값입니다.
 
 		$instance = array();
-		$instance['text'] = $new_instance['text'];
+		$instance['title'] = $new_instance['title'];
+		$instance['textType'] = $new_instance['textType'];
+		$instance['imgType'] = $new_instance['imgType'];
+		$instance['radio'] = $new_instance['radio'];
 		return $new_instance;
 	}
 
 	public function form($instance){
 // $instance : 이전에 저장되어 있는 데이터값입니다.
-		if( isset($instance['text'])) $text = $instance['text'];
+		if( isset($instance['title'])) $title = $instance['title'];
+		if( isset($instance['textType'])) $textType = $instance['textType'];
+		if( isset($instance['imgType'])) $imgType = $instance['imgType'];
+		if( isset($instance['radio'])) $radio= $instance['radio'];
 		?>
 		<br>
-		text : <input type='text' id='<?php echo $this->get_field_id('text');?>' name='<?php echo $this->get_field_name('text');?>' value='<?php echo $text;?>' > <br><br>
+		Title : <input type='text' id='<?php echo $this->get_field_id('title');?>' name='<?php echo $this->get_field_name('title');?>' value='<?php echo $title;?>' > <br><br>
 
+		Display type <br>
+		text : <input type='radio' id='<?php echo $this->get_field_id('textType')?>' name='<?php echo $this->get_field_name('radio')?>' value='textType' <?php if($radio === 'textType') echo 'checked' ?> ><br>
+		image : <input type='radio' id='<?php echo $this->get_field_id('imgType')?>' name='<?php echo $this->get_field_name('radio')?>' value='imgType' <?php if($radio === 'imgType') echo 'checked' ?> ><br>
 		<?php
 // $this->get_field_name('animate_sec')
 // $this->get_field_id('animate_sec')
